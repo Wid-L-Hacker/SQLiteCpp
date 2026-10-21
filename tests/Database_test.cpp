@@ -146,7 +146,8 @@ TEST(Database, wrapper)
         db.exec("CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
         EXPECT_TRUE(db.tableExists("test"));
         std::string filename = db.getFilename();
-        EXPECT_STREQ(filename.substr(filename.rfind('/')+1).c_str(), "test.db4");
+        const size_t sep = filename.find_last_of("/\\");
+        EXPECT_STREQ(filename.substr(sep == std::string::npos ? 0 : sep + 1).c_str(), "test.db4");
     }
     // dbconn remains open after db destruction
     rc = sqlite3_close(dbconn);
