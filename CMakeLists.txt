@@ -292,7 +292,13 @@ endif ()
 
 option(SQLITECPP_INTERNAL_SQLITE "Add the internal SQLite3 source to the project." ON)
 option(SQLITECPP_FIND_SQLITE "Attempt to find SQLite (or sqlcipher, with SQLITE_HAS_CODEC) automatically. Requires SQLITECPP_INTERNAL_SQLITE=OFF. If disabled then a SQLite::SQLite3 cmake target must already exist." ON)
-if (SQLITECPP_INTERNAL_SQLITE)
+option(SQLITECPP_IN_EXTENSION "Use SQLiteCpp in the implementation of a SQLite3 loadable extension" OFF)
+if (SQLITECPP_IN_EXTENSION)
+    # To use within a SQLite3 loadable extension, we must not target_link_libraries() SQLite3 itself; the
+    # host program will already have loaded it (possibly a statically-linked version) and we'll receive its
+    # API pointers via sqlite3_extension_init().
+    target_compile_definitions(SQLiteCpp PUBLIC SQLITECPP_IN_EXTENSION)
+elseif (SQLITECPP_INTERNAL_SQLITE)
     if (SQLITE_HAS_CODEC)
         message(FATAL_ERROR "Internal sqlite3 source does not support SQLITE_HAS_CODEC")
     endif()
